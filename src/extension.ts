@@ -8,24 +8,21 @@ export function activate(context: vscode.ExtensionContext) {
 		let doc = editor?.document;
 		let cursors = editor?.selections;
 
-		let selectA: vscode.Selection,
-			selectB: vscode.Selection;
-
-		function selectString(c: vscode.Selection) {
-			let toVal = new vscode.Selection(c.start, c.end);
-			if (c.isEmpty) {
-				let range = doc?.getWordRangeAtPosition(c.start);
+		function select(s: vscode.Selection) {
+			let toVal = new vscode.Selection(s.start, s.end);
+			if (s.isEmpty) {
+				let range = doc?.getWordRangeAtPosition(s.start);
 
 				if (range?.isEmpty !== undefined) {
-					toVal = new vscode.Selection(range?.start, range?.end);
+					toVal = new vscode.Selection(range.start, range.end);
 				}
 			}
 			return toVal;
 		}
 
 		if (cursors?.length === 2) {
-			selectA = selectString(cursors[0]);
-			selectB = selectString(cursors[1]);
+			let selectA = select(cursors[0]),
+				selectB = select(cursors[1]);
 
 			editor?.edit(edit => {
 				edit.replace(selectA, doc?.getText(selectB) + '');
