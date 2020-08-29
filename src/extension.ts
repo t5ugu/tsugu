@@ -15,8 +15,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if (cursors[0].isEmpty) {
 				let rangeA = doc?.getWordRangeAtPosition(cursors[0].start);
-				if (rangeA?.isEmpty) {
+
+				if (rangeA?.isEmpty !== undefined) {
 					selectA = new vscode.Selection(rangeA?.start, rangeA?.end);
+				}
+				else {
+					selectA = new vscode.Selection(cursors[0].start, cursors[0].start);
 				}
 			}
 			else {
@@ -25,8 +29,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if (cursors[1].isEmpty) {
 				let rangeB = doc?.getWordRangeAtPosition(cursors[1].start);
-				if (rangeB?.isEmpty) {
-					selectA = new vscode.Selection(rangeB?.start, rangeB?.end);
+
+				if (rangeB?.isEmpty !== undefined) {
+					selectB = new vscode.Selection(rangeB?.start, rangeB?.end);
+				}
+				else {
+					selectB = new vscode.Selection(cursors[1].start, cursors[1].start);
 				}
 			}
 			else {

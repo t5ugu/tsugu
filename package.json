@@ -19,6 +19,12 @@
 				"command": "tsugu.swap",
 				"title": "Swap"
 			}
+		],
+		"keybindings": [
+			{
+				"command": "extension.tsugu.swap",
+				"key": "alt+S"
+			}
 		]
 	},
 	"scripts": {
