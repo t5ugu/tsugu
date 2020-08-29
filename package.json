@@ -22,7 +22,7 @@
 		],
 		"keybindings": [
 			{
-				"command": "extension.tsugu.swap",
+				"command": "tsugu.swap",
 				"key": "alt+S"
 			}
 		]
