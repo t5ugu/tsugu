@@ -1,11 +1,13 @@
 import * as vscode from 'vscode';
+import { SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION } from 'constants';
 
 export function activate(context: vscode.ExtensionContext) {
 	console.log('"tsugu" is now active!');
 
+	let editor = vscode.window.activeTextEditor;
+	let doc = editor?.document;
+
 	let swap = vscode.commands.registerCommand('tsugu.swap', () => {
-		let editor = vscode.window.activeTextEditor;
-		let doc = editor?.document;
 		let cursors = editor?.selections;
 
 		function select(s: vscode.Selection) {
@@ -30,8 +32,36 @@ export function activate(context: vscode.ExtensionContext) {
 			});
 		}
 	});
-
 	context.subscriptions.push(swap);
+
+
+	let operation = vscode.commands.registerCommand('tsugu.operation', () => {
+		let select = editor?.selection;
+
+		let text = doc?.getText(select);
+		let formulas = text?.split('=');
+		for (let i = 0; formulas !== undefined && i < formulas.length; i++) {
+			formulas[i].trim();
+		}
+
+		if (formulas !== undefined && formulas[0].length !== 0 && formulas[1].length !== 0) {
+			for (let i = 0; i < formulas.length; i++) {
+				vscode.window.showInformationMessage(formulas[i]);
+			}
+
+			let elements: (string)[][] = [][formulas.length];
+			for (let i = 0; i < formulas.length; i++) {
+				for (let j = 0; j < formulas[i].split('(')?.length; j++) {
+					elements[j][i] = formulas[i].slice(formulas[i].lastIndexOf('('), formulas[i].indexOf(')'));
+					// TODO
+				}
+			}
+
+		} else {
+			vscode.window.showErrorMessage('Your Formula is Deficient!');
+		}
+	});
+	context.subscriptions.push(operation);
 }
 
 export function deactivate() { }
