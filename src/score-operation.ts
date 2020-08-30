@@ -15,24 +15,29 @@ export function scoreOperation() {
         let still: number[] = [];
         let spled: string[] = [];
 
-        for (let i = 0; i < formulas[1].length; i++) {
-            switch (formulas[1].charAt(i)) {
-                case '(':
-                    still.push(i);
-                    continue;
-                case ')':
-                    pair.push([still.slice(-1)[0], i]);
-                    spled.push(formulas[1].slice(still.slice(-1)[0], i + 1));
+        for (let j = 0; formulas[1].indexOf('(') !== -1; j++) {
+            for (let i = 0; i < formulas[1].length; i++) {
+                switch (formulas[1].charAt(i)) {
+                    case '(':
+                        still.push(i);
+                        continue;
+                    case ')':
+                        pair.push([still.slice(-1)[0], i]);
+                        spled.push(formulas[1].slice(still.slice(-1)[0] + 1, i));
 
-                    formulas[1] = formulas[1].slice(0, still.slice(-1)[0]) + '[' + `${spled.length}` + ']' + formulas[1].slice(i + 1, formulas[1].length);
+                        formulas[1] = formulas[1].replace(`(${spled.slice(-1)[0]})`, `[${spled.length}]`);
 
-                    still.pop();
-                    continue;
-                default:
-                    continue;
+                        still.pop();
+                        continue;
+                    default:
+                        continue;
+                }
             }
         }
-
+        vscode.window.showInformationMessage('result: ' + formulas[1]);
+        for (let i = 0; i < spled.length; i++) {
+            vscode.window.showInformationMessage(`[${i+1}]: ` + spled[i]);
+        }
     }
     else {
         vscode.window.showErrorMessage('Your Formula is Deficient!');

@@ -8,10 +8,10 @@ export function activate(context: vscode.ExtensionContext) {
 	let editor = vscode.window.activeTextEditor;
 	let doc = editor?.document;
 
-	let swapping = vscode.commands.registerCommand('tsugu.swap', () => swap);
+	let swapping = vscode.commands.registerCommand('tsugu.swap', () => swap());
 	context.subscriptions.push(swapping);
 
-	let operation = vscode.commands.registerCommand('tsugu.operation', () => scoreOperation);
+	let operation = vscode.commands.registerCommand('tsugu.operation', () => scoreOperation());
 	context.subscriptions.push(operation);
 }
 
