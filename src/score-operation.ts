@@ -34,9 +34,14 @@ export function scoreOperation() {
                 }
             }
         }
+
+        let elements: (string | number)[][] = [];
+
+        // TODO
+
         vscode.window.showInformationMessage('result: ' + formulas[1]);
         for (let i = 0; i < spled.length; i++) {
-            vscode.window.showInformationMessage(`[${i+1}]: ` + spled[i]);
+            vscode.window.showInformationMessage(`[${i + 1}]: ` + spled[i]);
         }
     }
     else {
