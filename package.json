@@ -11,7 +11,8 @@
 	],
 	"activationEvents": [
 		"onCommand:tsugu.swap",
-		"onCommand:tsugu.operation"
+		"onCommand:tsugu.operation",
+		"onCommand:tsugu.full2half"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -23,12 +24,20 @@
 			{
 				"command": "tsugu.operation",
 				"title": "Operation"
+			},
+			{
+				"command": "tsugu.full2half",
+				"title": "2byte-WS -> two 1byte-WS"
 			}
 		],
 		"keybindings": [
 			{
 				"command": "tsugu.swap",
 				"key": "alt+S"
+			},
+			{
+				"command": "tsugu.full2half",
+				"key": "ctrl+shift+2"
 			}
 		]
 	},
