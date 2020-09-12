@@ -10,7 +10,7 @@ a=f(a,b)
 output-;
 
 result: f[1]
-[1]: [1-1], [1-2]
+[1-0]: [1-1], [1-2]
 [1-1]: a
 [1-2]: b
 */
@@ -28,7 +28,6 @@ export function scoreOperation() {
     let formulas = (doc?.getText(select).replace(' ', '') + '').split('=');
 
     if (formulas[0].length !== 0 && formulas[1].length !== 0) {
-        let p: number[][] = [];  // 始点と終点のペア
         let still: number[] = [];   // 始点のみ
         let spled: string[] = [];   // p内のペアの文字
         let func: string[][] = [];  // 関数
@@ -41,31 +40,34 @@ export function scoreOperation() {
 
                 case ')':
                     let _s = gle(still);
-                    p.push([_s, i]);
                     spled.push(formulas[1].slice(_s + 1, i));
                     still.pop();
 
                     let _t = gle(spled) + '';
 
-                    let _t_ = '';
-                    if (_t.indexOf(',') !== -1) {
-                        func.push(_t.split(','));
-                        for (let j = 0; j < gle(func).length; j++) {
-                            _t_ += `[${j}],`;
-                        }
-                        _t_ = `${_t_.substring(0, _t_.length - 1)}`;
-                    }
-                    else { func.push([]); }
+                    func.push(_t.split(','));
 
                     _t = `(${_t})`;
-                    let _i = formulas[1].indexOf(_t);
-                    while (_i !== -1) {
-                        formulas[1] = formulas[1].substring(0, _i) + `[${spled.length}]` +
-                            formulas[1].substring(_i + _t.length, formulas[1].length);
-                        _i = formulas[1].indexOf(_t);
+                    let k = formulas[1].indexOf(_t);
+                    for (let j = 0; j < gle(func).length; j++) {
+                        while (k !== -1) {
+                            formulas[1] = formulas[1].substring(0, k) + `[${spled.length}-${j}]` +
+                                formulas[1].substring(k + _t.length, formulas[1].length);
+                            k = formulas[1].indexOf(_t);
+                        }
                     }
 
-                    if (_t.length > 1) { i -= _t.length - 1; }
+                    let v = spled.length.toString().length; // 1, 2...
+                    let w = _t.length;                      // (a)
+                    if (w > v) { i = i - w - v; } else
+                    
+                    // (abc)
+                    //     ^  <- index is 5
+                    // -- to be...
+                    // [1]
+                    //   ^    <- index is 3
+                    
+                    if (w < v) { i = i - w + v; }
 
                     continue;
 
