@@ -86,15 +86,15 @@ var operateTable: IIndexable = {
  */
 export function rpnCalculation(rpnExp: string) {
     ///引数エラー判定
-    if (rpnExp === null || typeof rpnExp !== "string") { throw new Error("illegal arg type"); }
+    if (rpnExp === null || typeof rpnExp !== 'string') { throw new Error("illegal arg type"); }
 
     //演算子と演算項を切り分けて配列化する。再起するので関数化。
-    function fnSplitOperator(_val: string, _stack: { value: string, type: string | number }[]) {
+    function fnSplitOperator(_val: string) {
         if (_val === "") { return; }
 
         //演算子判定
-        if (operateTable[_val] !== null) {
-            _stack.push({ value: _val, type: operateTable[_val].type });
+        if (operateTable[_val] !== null && isNaN(Number(_val.toString()))) {
+            rpnStack.push({ value: _val, type: operateTable[_val].type });
             return;
         }
 
@@ -102,36 +102,36 @@ export function rpnCalculation(rpnExp: string) {
         for (var op in operateTable) {
             var piv = _val.indexOf(op);
             if (piv !== -1) {
-                fnSplitOperator(_val.substring(0, piv), _stack);
-                fnSplitOperator(_val.substring(piv, piv + op.length), _stack);
-                fnSplitOperator(_val.substring(piv + op.length), _stack);
+                fnSplitOperator(_val.substring(0, piv));
+                fnSplitOperator(_val.substring(piv, piv + op.length));
+                fnSplitOperator(_val.substring(piv + op.length));
                 return;
             }
         }
 
         //数値
         if (!isNaN(parseFloat(_val))) {
-            _stack.push({ value: _val, type: "num" });
+            rpnStack.push({ value: _val, type: "num" });
         }
         //文字列
         else {
-            _stack.push({ value: _val, type: "str" });
+            rpnStack.push({ value: _val, type: "str" });
         }
     };
 
     //切り分け実行
     //式を空白文字かカンマでセパレートして配列化＆これらデリミタを式から消す副作用
-    var rpnStack: { value: string, type: string | number }[] = [];
+    var rpnStack: { value: string, type: string }[] = [];
     for (var i = 0, rpnArray = rpnExp.split(/\s+|,/); i < rpnArray.length; i++) {
-        fnSplitOperator(rpnArray[i], rpnStack);
+        fnSplitOperator(rpnArray[i]);
     }
 
 
     ///演算開始
     var calcStack: (number | string)[] = []; //演算結果スタック
     while (rpnStack.length > 0) {
-        var elem = rpnStack!.shift();
-        if (elem === undefined) { elem = { type: '', value: '' }; }
+        var elem = rpnStack.shift();
+        if (elem === undefined) { elem = { type: "str", value: "" }; }
         switch (elem.type) {
             //演算項（数値のparse）
             case "num":
@@ -180,7 +180,7 @@ export function rpnCalculation(rpnExp: string) {
     }
 
     ///計算結果を戻す
-    return calcStack[0];   
+    return calcStack[0];
 }
 
 
@@ -190,7 +190,7 @@ export function rpnCalculation(rpnExp: string) {
  */
 export function rpnGenerate(exp: string) {
     ///引数エラー判定
-    if (typeof exp !== "string") { throw new Error("illegal arg type"); }
+    if (typeof exp !== 'string') { throw new Error("illegal arg type"); }
 
     var polish = []; ///parse結果格納用
     var opeStack: any[][] = [[]]; ///演算子スタック
@@ -313,7 +313,7 @@ export function rpnGenerate(exp: string) {
  * @param {Object} _fn Operator Function
  */
 export function rpnSetOperate(_name: string, _arity: number, _fn: Object) {
-    if (typeof _name !== "string" || !_name || typeof _arity !== "number" || typeof _fn !== "function") {
+    if (typeof _name !== 'string' || !_name || typeof _arity !== 'number' || typeof _fn !== 'function') {
         console.warn("SetOperate arg type error");
     }
     else {
