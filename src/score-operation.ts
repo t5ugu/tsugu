@@ -8,10 +8,9 @@ export function scoreOperation() {
     const doc = editor!.document;
     const selection = editor!.selection;
 
-    let text = doc.getText(selection).split("=")[1];
-    let formula = rpn.rpnGenerate(text)!;
+    let text = doc.getText(selection).split("=");
+    let formula = rpn.rpnGenerate(text[1])!;
     vscode.window.showInformationMessage(formula);
 
-    let ans = rpn.rpnCalculation(formula)!;
-    vscode.window.showInformationMessage(ans.toString());
+    vscode.window.showInformationMessage(`${text[0]} = ${rpn.rpnCalculation(formula)!.toString()}`);
 }
