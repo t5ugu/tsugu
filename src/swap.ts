@@ -1,29 +1,25 @@
 import * as vscode from 'vscode';
 
 export function swap() {
-    let editor = vscode.window.activeTextEditor;
-    let doc = editor?.document;
-    let cursors = editor?.selections;
+    let editor = vscode.window.activeTextEditor!;
+    let doc = editor.document;
+    let cursors = editor.selections;
 
-    function select(s: vscode.Selection): vscode.Selection {
-        let toVal = new vscode.Selection(s.start, s.end);
+    function select(s: vscode.Selection) {
         if (s.isEmpty) {
-            let range = doc?.getWordRangeAtPosition(s.start);
-
-            if (range?.isEmpty !== undefined) {
-                toVal = new vscode.Selection(range.start, range.end);
-            }
+            let r = doc.getWordRangeAtPosition(s.start)!;
+            return new vscode.Selection(r.start, r.end);
         }
-        return toVal;
+        return new vscode.Selection(s.start, s.end);;
     }
 
-    if (cursors?.length === 2) {
-        let selectA = select(cursors[0]),
-            selectB = select(cursors[1]);
+    if (cursors.length === 2) {
+        let A = select(cursors[0]),
+            B = select(cursors[1]);
 
-        editor?.edit(edit => {
-            edit.replace(selectA, doc?.getText(selectB) + '');
-            edit.replace(selectB, doc?.getText(selectA) + '');
+        editor.edit(edit => {
+            edit.replace(A, doc.getText(B));
+            edit.replace(B, doc.getText(A));
         });
     }
 }

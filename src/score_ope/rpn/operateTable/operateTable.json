@@ -1,0 +1,137 @@
+{
+    "table": [
+        {
+            "identifier": "(",
+            "order": 20,
+            "type": "state",
+            "arity": 0,
+            "assocLow": "",
+            "fn": "function () { }"
+        },
+        {
+            "identifier": ")",
+            "order": 20,
+            "type": "state",
+            "arity": 0,
+            "assocLow": "",
+            "fn": "function () { }"
+        },
+        {
+            "identifier": "#",
+            "order": 16,
+            "type": "op",
+            "arity": 1,
+            "assocLow": "R",
+            "fn": "function (_l: number) { return _l; }",
+            "comment": "+符合の代替"
+        },
+        {
+            "identifier": "_",
+            "order": 16,
+            "type": "op",
+            "arity": 1,
+            "assocLow": "R",
+            "fn": "function (_l: number) { return -_l; }",
+            "comment": "-符合の代替"
+        },
+        {
+            "identifier": "~",
+            "order": 16,
+            "type": "op",
+            "arity": 1,
+            "assocLow": "R",
+            "fn": "function (_l: number) { return ~_l; }"
+        },
+        {
+            "identifier": "**",
+            "order": 15,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "R",
+            "fn": "function (_l: number, _r: number) { return _l ** _r; }"
+        },
+        {
+            "identifier": "*",
+            "order": 14,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l * _r; }"
+        },
+        {
+            "identifier": "/",
+            "order": 14,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l / _r; }"
+        },
+        {
+            "identifier": "%",
+            "order": 14,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l % _r; }"
+        },
+        {
+            "identifier": "+",
+            "order": 13,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l + _r; }"
+        },
+        {
+            "identifier": "-",
+            "order": 13,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l - _r; }"
+        },
+        {
+            "identifier": "<<",
+            "order": 12,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l << _r; }"
+        },
+        {
+            "identifier": ">>",
+            "order": 12,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l >> _r; }"
+        },
+        {
+            "identifier": "&",
+            "order": 9,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l & _r; }"
+        },
+        {
+            "identifier": "^",
+            "order": 8,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l ^ _r; }"
+        },
+        {
+            "identifier": "|",
+            "order": 7,
+            "type": "op",
+            "arity": 2,
+            "assocLow": "L",
+            "fn": "function (_l: number, _r: number) { return _l | _r; }"
+        }
+    ],
+    "identifiers": [
+        "(", ")", "#", "_", "~", "**", "*", "/", "%", "+", "-", "<<", ">>", "&", "^", "|"
+    ]
+}

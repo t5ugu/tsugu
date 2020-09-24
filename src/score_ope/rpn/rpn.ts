@@ -1,7 +1,7 @@
-import { isNumber } from "util";
 // https://github.com/spica-git/ReversePolishNotation/ からコピー、微改変
 
-import IIndexable from "../interfaces/Indexable";
+import * as IOpe from "./operateTable/index";
+import opTable from './operateTable/operateTable.json';
 
 /**
  * @description 演算子・その他演算機能の定義
@@ -11,7 +11,18 @@ import IIndexable from "../interfaces/Indexable";
  *	assocLow: 結合法則（"":なし, "L":左結合(left to right), "R":右結合(right to left)）
  * 	fn: 演算処理
  */
-var operateTable: IIndexable = {
+var table: IOpe.IIdentifiers[] = opTable.table;
+
+/*
+//+符合の代替
+    '#': {
+        order: 16, type: "op", arity: 1, assocLow: "R",
+        fn: function (_l: number) { return _l; }
+    },
+    '+': {
+        order: 13, type: "op", arity: 2, assocLow: "L",
+        fn: function (_l: number, _r: number) { return _l + _r; }
+    },
     '(': {
         order: 20, type: "state", arity: 0, assocLow: "",
         fn: function () { }
@@ -19,11 +30,6 @@ var operateTable: IIndexable = {
     ')': {
         order: 20, type: "state", arity: 0, assocLow: "",
         fn: function () { }
-    },
-    //+符合の代替
-    '#': {
-        order: 16, type: "op", arity: 1, assocLow: "R",
-        fn: function (_l: number) { return _l; }
     },
     //-符合の代替
     '_': {
@@ -50,10 +56,6 @@ var operateTable: IIndexable = {
         order: 14, type: "op", arity: 2, assocLow: "L",
         fn: function (_l: number, _r: number) { return _l % _r; }
     },
-    '+': {
-        order: 13, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l + _r; }
-    },
     '-': {
         order: 13, type: "op", arity: 2, assocLow: "L",
         fn: function (_l: number, _r: number) { return _l - _r; }
@@ -77,7 +79,13 @@ var operateTable: IIndexable = {
     '|': {
         order: 7, type: "op", arity: 2, assocLow: "L",
         fn: function (_l: number, _r: number) { return _l | _r; }
-    }
+    }*/
+
+/**
+ * Search String From operation Table
+ */
+function ssft(_str: string) {
+    return table[opTable.identifiers.indexOf(_str)];
 };
 
 /**
@@ -93,13 +101,14 @@ export function rpnCalculation(rpnExp: string) {
         if (_val === "") { return; }
 
         //演算子判定
-        if (operateTable[_val] !== null && isNaN(Number(_val.toString()))) {
-            rpnStack.push({ value: _val, type: operateTable[_val].type });
+        if (_val in opTable.identifiers && isNaN(Number(_val.toString()))) {
+            rpnStack.push({ value: _val,
+                type: ssft(_val).type});
             return;
         }
 
         //演算子を含む文字列かどうか判定
-        for (var op in operateTable) {
+        for (var op in table) {
             var piv = _val.indexOf(op);
             if (piv !== -1) {
                 fnSplitOperator(_val.substring(0, piv));
@@ -119,13 +128,16 @@ export function rpnCalculation(rpnExp: string) {
         }
     };
 
+    for (const i in table) {
+        table[i].fn = Function("return " + table[i].fn)();
+    }
+
     //切り分け実行
     //式を空白文字かカンマでセパレートして配列化＆これらデリミタを式から消す副作用
     var rpnStack: { value: string, type: string }[] = [];
     for (var i = 0, rpnArray = rpnExp.split(/\s+|,/); i < rpnArray.length; i++) {
         fnSplitOperator(rpnArray[i]);
     }
-
 
     ///演算開始
     var calcStack: (number | string)[] = []; //演算結果スタック
@@ -152,8 +164,9 @@ export function rpnCalculation(rpnExp: string) {
 
             //演算子・計算機能
             case "op": case "fn":
-                var operate = operateTable[elem.value];
+                var operate = ssft(elem.value);
                 if (operate === null) { throw new Error("not exist operate:" + elem.value); }
+                if (typeof operate.fn === 'string') { continue; }
 
                 //演算に必要な数だけ演算項を抽出
                 var args = [];
@@ -189,9 +202,6 @@ export function rpnCalculation(rpnExp: string) {
  * @param {string} exp 計算式
  */
 export function rpnGenerate(exp: string) {
-    ///引数エラー判定
-    if (typeof exp !== 'string') { throw new Error("illegal arg type"); }
-
     var polish = []; ///parse結果格納用
     var opeStack: any[][] = [[]]; ///演算子スタック
     var depth = 0; ///括弧のネスト深度
@@ -216,7 +226,7 @@ export function rpnGenerate(exp: string) {
 
         //演算子抽出
         var op = null;
-        for (var key in operateTable) {
+        for (var key in table) {
             if (exp.indexOf(key) === 0) {
                 op = key;
                 exp = exp.substring(key.length);
@@ -244,9 +254,9 @@ export function rpnGenerate(exp: string) {
                 //・演算子スタックの先頭にある演算子より優先度が高い
                 //・演算子スタックの先頭にある演算子と優先度が同じでかつ結合法則がright to left
                 if (opeStack[depth].length === 0 ||
-                    operateTable[op].order > operateTable[opeStack[depth][0]].order ||
-                    (operateTable[op].order === operateTable[opeStack[depth][0]].order
-                        && operateTable[op].assocLow === "R")
+                    ssft(op).order > table[opeStack[depth][0]].order ||
+                    (ssft(op).order === table[opeStack[depth][0]].order
+                        && ssft(op).assocLow === "R")
                 ) {
                     opeStack[depth].unshift(op);
                 }
@@ -258,7 +268,7 @@ export function rpnGenerate(exp: string) {
                         var ope = opeStack[depth].shift();
                         polish.push(ope);
                         //演算優先度が、スタック先頭の演算子以上ならば、続けて式に演算子を積む
-                        if (operateTable[ope].order >= operateTable[op].order) {
+                        if (table[ope].order >= ssft(op).order) {
                             continue;
                         }
                         else {
@@ -309,14 +319,12 @@ export function rpnGenerate(exp: string) {
 /**
  * @description デフォルトサポートの演算子以外の機能追加（差し替え）
  * @param {string} _name Operator name
+ * @param {number} _order
+ * @param {string} _type
  * @param {number} _arity Argument num (Operand num)
+ * @param {string} _assocLow
  * @param {Object} _fn Operator Function
  */
-export function rpnSetOperate(_name: string, _arity: number, _fn: Object) {
-    if (typeof _name !== 'string' || !_name || typeof _arity !== 'number' || typeof _fn !== 'function') {
-        console.warn("SetOperate arg type error");
-    }
-    else {
-        operateTable[_name] = { order: 18, type: "fn", arity: _arity, assocLow: "L", fn: _fn };
-    }
+export function rpnSetOperate(_name: string, _order: number, _type: string, _arity: number, _assocLow: string, _fn: Function) {
+    //ssft(_name) = { order: _order, type: _type, arity: _arity, assocLow: _assocLow, fn: _fn, comment: "" };
 };

@@ -1,19 +1,14 @@
 import * as vscode from 'vscode';
 import { swap } from './swap';
-import { scoreOperation } from './score-operation';
+import { scoreOperation } from './score_ope/score_operation';
 import { fullToHalf } from './full2half';
 
 export function activate(context: vscode.ExtensionContext) {
-	console.log('"tsugu" is now active!');
-
-	let swapping = vscode.commands.registerCommand('tsugu.swap', () => swap());
-	context.subscriptions.push(swapping);
-
-	let operation = vscode.commands.registerCommand('tsugu.operation', () => scoreOperation());
-	context.subscriptions.push(operation);
-
-	let full2half = vscode.commands.registerCommand('tsugu.full2half', () => fullToHalf());
-	context.subscriptions.push(full2half);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('tsugu.swap',		() => swap()),
+		vscode.commands.registerCommand('tsugu.operation',	() => scoreOperation()),
+		vscode.commands.registerCommand('tsugu.full2half',	() => fullToHalf()),
+	);
 }
 
 export function deactivate() { }

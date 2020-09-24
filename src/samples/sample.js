@@ -1,11 +1,11 @@
 // https://github.com/oOBoomberOo/mc-math-generator/
 
-const error_message = {
+const errorMessage = {
     'invalid': 'Invalid Expression',
     'operator': {
         '^': {
-            'not_integer': 'String after "^" operator have to be integer',
-            'too_big': 'Exponent is too big'
+            'ontInteger': 'String after "^" operator have to be integer',
+            'tooBig': 'Exponent is too big'
         }
     }
 };
@@ -30,77 +30,77 @@ exports.mathExpression = function (expression, scoreboard, settings, callback) {
             ]
         }
     };
-    scoreboard = scoreboard == false ? [settings['scoreboard1'], settings['scoreboard2']] : scoreboard.replace(/\s/g, '').split(',');
+    scoreboard = scoreboard === false ? [settings['scoreboard1'], settings['scoreboard2']] : scoreboard.replace(/\s/g, '').split(',');
     scoreboard = scoreboard.length === 1 ? [scoreboard[0], scoreboard[0]] : scoreboard;
     scoreboard = scoreboard.length > 2 ? [scoreboard[0], scoreboard[1]] : scoreboard;
 
     expression = assertEquation(expression);
     let variable = expression[0];
     let operator = expression[1];
-    let main_selector = variable[0];
+    let mainSelector = variable[0];
     let result = [];
     if (variable.length >= 1) {
         variable = variable.slice(1, variable.length);
         if (variable.length <= operator.length) {
             for (let i = 0; i < variable.length; i++) {
-                let current_variable = variable[i];
-                let current_operator = operator[i];
+                let currentVariable = variable[i];
+                let currentOperator = operator[i];
 
-                let current_operation = determineOperator(current_operator, current_variable);
-                if (template[current_operation.type] && template[current_operation.type][current_operation.operation]) {
-                    let generated = template[current_operation.type][current_operation.operation];
-                    switch (current_operation.type) {
+                let currentOperation = determineOperator(currentOperator, currentVariable);
+                if (template[currentOperation.type] && template[currentOperation.type][currentOperation.operation]) {
+                    let generated = template[currentOperation.type][currentOperation.operation];
+                    switch (currentOperation.type) {
                         case 'special':
-                            switch (current_operation.operation) {
+                            switch (currentOperation.operation) {
                                 case '^':
-                                    if (/\d+/g.test(current_variable)) {
-                                        let parsedNum = parseInt(current_variable);
+                                    if (/\d+/g.test(currentVariable)) {
+                                        let parsedNum = parseInt(currentVariable);
                                         if (0 < parsedNum && parsedNum <= settings.exponent_limit) {
                                             let setup = generated[0];
                                             let line = generated[1];
-                                            result.push(formatScoreboard(setup, main_selector, current_variable, scoreboard));
+                                            result.push(formatScoreboard(setup, mainSelector, currentVariable, scoreboard));
                                             for (let j = 1; j < parsedNum; j++) {
-                                                result.push(formatScoreboard(line, main_selector, current_variable, scoreboard));
+                                                result.push(formatScoreboard(line, mainSelector, currentVariable, scoreboard));
                                             }
                                         }
                                         else {
-                                            return callback(null, { message: error_message.operator["^"].too_big });
+                                            return callback(null, { message: errorMessage.operator["^"].tooBig });
                                         }
                                     }
                                     else {
-                                        return callback(null, { message: error_message.operator["^"].not_integer });
+                                        return callback(null, { message: errorMessage.operator["^"].ontInteger });
                                     }
                                     break;
                                 default:
-                                    return callback(null, { message: error_message.invalid });
+                                    return callback(null, { message: errorMessage.invalid });
                             }
                             break;
                         default:
                             for (let line of generated) {
-                                result.push(formatScoreboard(line, main_selector, current_variable, scoreboard));
+                                result.push(formatScoreboard(line, mainSelector, currentVariable, scoreboard));
                             }
                     }
                 }
                 else {
-                    return callback(null, { message: error_message.invalid });
+                    return callback(null, { message: errorMessage.invalid });
                 }
             }
             return callback(result, null);
         }
         else {
-            return callback(null, { message: error_message.invalid });
+            return callback(null, { message: errorMessage.invalid });
         }
     }
     else {
-        return callback(null, { message: error_message.invalid });
+        return callback(null, { message: errorMessage.invalid });
     }
-}
+};
 
-function formatScoreboard(string, main_selector, current_variable, scoreboard) {
-    return string.replace(/<selector>/g, main_selector)
-        .replace(/<selector1>/g, main_selector)
-        .replace(/<selector2>/g, current_variable)
-        .replace(/<value>/g, current_variable)
+function formatScoreboard(string, mainSelector, currentVariable, scoreboard) {
+    return string.replace(/<selector>/g, mainSelector)
+        .replace(/<selector1>/g, mainSelector)
+        .replace(/<selector2>/g, currentVariable)
+        .replace(/<value>/g, currentVariable)
         .replace(/<scoreboard>/g, scoreboard[0])
         .replace(/<scoreboard1>/g, scoreboard[0])
         .replace(/<scoreboard2>/g, scoreboard[1]);
@@ -120,7 +120,7 @@ function assertEquation(equation) {
         ']': '[',
         '}': '{',
         ')': '('
-    }
+    };
     let operatorRegex = /[\+\-\*\/\%\^]/;
     let buffer = '';
     let indent = '';
