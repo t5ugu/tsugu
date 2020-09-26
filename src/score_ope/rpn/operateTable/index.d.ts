@@ -4,8 +4,7 @@ export interface IIdentifiers {
     type: string;
     arity: number;
     assocLow: string;
-    fn: string | Function;
-    comment?: string;
+    fn: Function;
 }
 
 export interface IJsonOperateTable {

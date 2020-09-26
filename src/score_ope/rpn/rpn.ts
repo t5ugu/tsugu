@@ -11,81 +11,24 @@ import opTable from './operateTable/operateTable.json';
  *	assocLow: 結合法則（"":なし, "L":左結合(left to right), "R":右結合(right to left)）
  * 	fn: 演算処理
  */
-var table: IOpe.IIdentifiers[] = opTable.table;
-
-/*
-//+符合の代替
-    '#': {
-        order: 16, type: "op", arity: 1, assocLow: "R",
-        fn: function (_l: number) { return _l; }
-    },
-    '+': {
-        order: 13, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l + _r; }
-    },
-    '(': {
-        order: 20, type: "state", arity: 0, assocLow: "",
-        fn: function () { }
-    },
-    ')': {
-        order: 20, type: "state", arity: 0, assocLow: "",
-        fn: function () { }
-    },
-    //-符合の代替
-    '_': {
-        order: 16, type: "op", arity: 1, assocLow: "R",
-        fn: function (_l: number) { return -_l; }
-    },
-    '~': {
-        order: 16, type: "op", arity: 1, assocLow: "R",
-        fn: function (_l: number) { return ~_l; }
-    },
-    '**': {
-        order: 15, type: "op", arity: 2, assocLow: "R",
-        fn: function (_l: number, _r: number) { return _l ** _r; }
-    },
-    '*': {
-        order: 14, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l * _r; }
-    },
-    '/': {
-        order: 14, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l / _r; }
-    },
-    '%': {
-        order: 14, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l % _r; }
-    },
-    '-': {
-        order: 13, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l - _r; }
-    },
-    '<<': {
-        order: 12, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l << _r; }
-    },
-    '>>': {
-        order: 12, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l >> _r; }
-    },
-    '&': {
-        order: 9, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l & _r; }
-    },
-    '^': {
-        order: 8, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l ^ _r; }
-    },
-    '|': {
-        order: 7, type: "op", arity: 2, assocLow: "L",
-        fn: function (_l: number, _r: number) { return _l | _r; }
-    }*/
+const table: IOpe.IIdentifiers[] = [];
+for (let i = 0; i < opTable.table.length; i++) {
+    table.push({
+        identifier: opTable.table[i].identifier,
+        order: opTable.table[i].order,
+        type: opTable.table[i].type,
+        arity: opTable.table[i].arity,
+        assocLow: opTable.table[i].assocLow,
+        fn: new Function("return " + opTable.table[i].fn)()
+    });
+}
 
 /**
  * Search String From operation Table
+ * @param {string} _str check this param in Operation Table
  */
 function ssft(_str: string) {
-    return table[opTable.identifiers.indexOf(_str)];
+    return opTable.identifiers.indexOf(_str);
 };
 
 /**
@@ -101,19 +44,21 @@ export function rpnCalculation(rpnExp: string) {
         if (_val === "") { return; }
 
         //演算子判定
-        if (_val in opTable.identifiers && isNaN(Number(_val.toString()))) {
-            rpnStack.push({ value: _val,
-                type: ssft(_val).type});
+        if (ssft(_val) !== -1 && isNaN(Number(_val.toString()))) {
+            rpnStack.push({
+                value: _val,
+                type: table[ssft(_val)].type
+            });
             return;
         }
 
         //演算子を含む文字列かどうか判定
-        for (var op in table) {
-            var piv = _val.indexOf(op);
+        for (let i = 0; i < opTable.identifiers.length; i++) {
+            var piv = _val.indexOf(table[i].identifier);
             if (piv !== -1) {
                 fnSplitOperator(_val.substring(0, piv));
-                fnSplitOperator(_val.substring(piv, piv + op.length));
-                fnSplitOperator(_val.substring(piv + op.length));
+                fnSplitOperator(_val.substring(piv, piv + opTable.identifiers[i].length));
+                fnSplitOperator(_val.substring(piv + opTable.identifiers[i].length));
                 return;
             }
         }
@@ -128,14 +73,11 @@ export function rpnCalculation(rpnExp: string) {
         }
     };
 
-    for (const i in table) {
-        table[i].fn = Function("return " + table[i].fn)();
-    }
-
     //切り分け実行
     //式を空白文字かカンマでセパレートして配列化＆これらデリミタを式から消す副作用
     var rpnStack: { value: string, type: string }[] = [];
-    for (var i = 0, rpnArray = rpnExp.split(/\s+|,/); i < rpnArray.length; i++) {
+    var rpnArray = rpnExp.split(/\s+|,/);
+    for (var i = 0; i < rpnArray.length; i++) {
         fnSplitOperator(rpnArray[i]);
     }
 
@@ -164,9 +106,8 @@ export function rpnCalculation(rpnExp: string) {
 
             //演算子・計算機能
             case "op": case "fn":
-                var operate = ssft(elem.value);
+                var operate = table[ssft(elem.value)];
                 if (operate === null) { throw new Error("not exist operate:" + elem.value); }
-                if (typeof operate.fn === 'string') { continue; }
 
                 //演算に必要な数だけ演算項を抽出
                 var args = [];
@@ -189,7 +130,7 @@ export function rpnCalculation(rpnExp: string) {
     ///途中失敗の判定
     if (rpnStack.length > 0 || calcStack.length !== 1) {
         console.warn({ message: "calculate unfinished", restRpn: rpnStack, resultValue: calcStack });
-        return null;
+        return "";
     }
 
     ///計算結果を戻す
@@ -227,9 +168,9 @@ export function rpnGenerate(exp: string) {
         //演算子抽出
         var op = null;
         for (var key in table) {
-            if (exp.indexOf(key) === 0) {
-                op = key;
-                exp = exp.substring(key.length);
+            if (exp.indexOf(table[key].identifier) === 0) {
+                op = table[key].identifier;
+                exp = exp.substring(table[key].identifier.length);
                 break;
             }
         }
@@ -245,8 +186,8 @@ export function rpnGenerate(exp: string) {
             default:
                 ///+符号を#に、-符号を_に置換
                 if (unary) {
-                    if (op === "+") { op = "#"; }
-                    else if (op === "-") { op = "_"; }
+                    if (op === '+') { op = '#'; }
+                    else if (op === '-') { op = '_'; }
                 }
 
                 //演算子スタックの先頭に格納
@@ -254,26 +195,19 @@ export function rpnGenerate(exp: string) {
                 //・演算子スタックの先頭にある演算子より優先度が高い
                 //・演算子スタックの先頭にある演算子と優先度が同じでかつ結合法則がright to left
                 if (opeStack[depth].length === 0 ||
-                    ssft(op).order > table[opeStack[depth][0]].order ||
-                    (ssft(op).order === table[opeStack[depth][0]].order
-                        && ssft(op).assocLow === "R")
+                    table[ssft(op)].order > table[ssft(opeStack[depth][0])].order ||
+                    (table[ssft(op)].order === table[ssft(opeStack[depth][0])].order && table[ssft(op)].assocLow === "R")
                 ) {
                     opeStack[depth].unshift(op);
-                }
-                //式のスタックに演算子を積む
-                else {
+                } else {
+                    //式のスタックに演算子を積む
                     //演算子スタックの先頭から、優先順位が同じか高いものを全て抽出して式に積む
                     //※優先順位が同じなのは結合法則がright to leftのものだけスタックに積んである
+                    //演算優先度が、スタック先頭の演算子以上ならば、続けて式に演算子を積む
                     while (opeStack[depth].length > 0) {
                         var ope = opeStack[depth].shift();
                         polish.push(ope);
-                        //演算優先度が、スタック先頭の演算子以上ならば、続けて式に演算子を積む
-                        if (table[ope].order >= ssft(op).order) {
-                            continue;
-                        }
-                        else {
-                            break;
-                        }
+                        if (table[ssft(ope)].order < table[ssft(op)].order) { break; }
                     }
                     opeStack[depth].unshift(op);
                 }
@@ -312,10 +246,10 @@ export function rpnGenerate(exp: string) {
         return polish.join(" ");
     }
 
-    return null;
+    return "";
 };
 
-
+/*
 /**
  * @description デフォルトサポートの演算子以外の機能追加（差し替え）
  * @param {string} _name Operator name
@@ -324,7 +258,7 @@ export function rpnGenerate(exp: string) {
  * @param {number} _arity Argument num (Operand num)
  * @param {string} _assocLow
  * @param {Object} _fn Operator Function
- */
+ *//*
 export function rpnSetOperate(_name: string, _order: number, _type: string, _arity: number, _assocLow: string, _fn: Function) {
-    //ssft(_name) = { order: _order, type: _type, arity: _arity, assocLow: _assocLow, fn: _fn, comment: "" };
-};
+  ssft(_name) = { order: _order, type: _type, arity: _arity, assocLow: _assocLow, fn: _fn, comment: "" };
+};*/
