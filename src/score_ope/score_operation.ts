@@ -26,9 +26,11 @@ export function scoreOperation() {
     const doc = editor.document;
     const selection = editor.selection;
 
-    let text = doc.getText(selection).split("=");
+    let text = doc.getText(selection);
 
-    let formula = rpn.rpnGenerate("a = " + text[1]);
+    let formula = rpn.rpnGenerate(text);
+
+    //vscode.window.showInformationMessage(rpn.rpnCalculation(formula)!.toString());
 
     function fnSplitOperator(_val: string) {
         if (_val === "") { return; }
@@ -66,7 +68,7 @@ export function scoreOperation() {
     }
 
     var calcStack: (number | string)[] = [];
-    let response: string = "#scoreboard objectives add _ dummy\n#if you wish, you can erase $\n";
+    let response: string = `# ${text}\n# scoreboard objectives add _ dummy\n#if you wish, you can erase $\n`;
     while (rpnStack.length > 0) {
         var elem = rpnStack.shift()!;
         switch (elem.type) {
@@ -82,15 +84,16 @@ export function scoreOperation() {
                 break;
 
             case "op": case "fn":
-                calcStack.unshift(calcStack[0]);
                 var operate = table[ssft(elem.value)];
 
                 let str = operate.axiom!;
-                for (var i = operate.arity - 1; i > -1; i--) {
+                for (var i = operate.arity - 1; i >= 0; i--) {
                     if (str.indexOf(`arg[${i}]`) !== -1) {
                         let t = `$${calcStack.pop()!.toString()}`;
                         str = str.substring(0, str.indexOf(`arg[${i}]`)) + t
                             + str.substring(str.indexOf(`arg[${i}]`) + `arg[${i}]`.length);
+
+                        if (i === 0) { calcStack.push(t.substring(1));}
                     }
                 }
 
@@ -100,6 +103,6 @@ export function scoreOperation() {
     }
 
     editor.edit(edit => {
-        edit.replace(selection, response);
+        edit.replace(selection, response.substring(0, response.length - 1));
     });
 }

@@ -2,9 +2,9 @@
 	"name": "tsugu",
 	"displayName": "tsugu",
 	"description": "",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"engines": {
-		"vscode": "^1.48.0"
+		"vscode": "^1.49.0"
 	},
 	"categories": [
 		"Other"
@@ -50,7 +50,7 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.48.0",
+		"@types/vscode": "^1.49.0",
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^8.0.0",
 		"@types/node": "^14.0.27",
