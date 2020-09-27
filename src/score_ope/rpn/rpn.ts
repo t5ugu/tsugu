@@ -1,12 +1,14 @@
 // https://github.com/spica-git/ReversePolishNotation/ からコピー、微改変
 
-import * as IOpe from "./operateTable/index";
+import IOpe from "./operateTable/index";
 import opTable from './operateTable/operateTable.json';
 
 /**
- * @description 演算子・その他演算機能の定義
+ * @description 演算子の定義
+ *  identifier: 演算子
  * 	order: 演算の優先順位（MDNの定義に準拠）
  * 		https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Operator_Precedence
+ *  type: 識別に用いる
  * 	arity: 演算項の数
  *	assocLow: 結合法則（"":なし, "L":左結合(left to right), "R":右結合(right to left)）
  * 	fn: 演算処理
@@ -84,8 +86,7 @@ export function rpnCalculation(rpnExp: string) {
     ///演算開始
     var calcStack: (number | string)[] = []; //演算結果スタック
     while (rpnStack.length > 0) {
-        var elem = rpnStack.shift();
-        if (elem === undefined) { elem = { type: "str", value: "" }; }
+        var elem = rpnStack.shift()!;
         switch (elem.type) {
             //演算項（数値のparse）
             case "num":
@@ -176,6 +177,13 @@ export function rpnGenerate(exp: string) {
         }
 
         if (op === null) {
+            g = exp.match(/^([a-z]+)/i);
+            if (g !== null) {
+                polish.push(g[0]);
+                exp = exp.substring(g[0].length);
+                unary = false;
+                continue;
+            }
             throw new Error("illegal expression:" + exp.substring(0, 10) + " ...");
         }
 
