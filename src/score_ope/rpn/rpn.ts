@@ -21,7 +21,7 @@ for (let i = 0; i < opTable.table.length; i++) {
         type: opTable.table[i].type,
         arity: opTable.table[i].arity,
         assocLow: opTable.table[i].assocLow,
-        fn: new Function("return " + opTable.table[i].fn)()
+        fn: new Function("return function " + opTable.table[i].fn)()
     });
 }
 

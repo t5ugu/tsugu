@@ -6,7 +6,7 @@
             "type": "state",
             "arity": 0,
             "assocLow": "",
-            "fn": "function () { }"
+            "fn": "() { }"
         },
         {
             "identifier": ")",
@@ -14,7 +14,7 @@
             "type": "state",
             "arity": 0,
             "assocLow": "",
-            "fn": "function () { }"
+            "fn": "() { }"
         },
         {
             "identifier": "#",
@@ -22,7 +22,7 @@
             "type": "op",
             "arity": 1,
             "assocLow": "R",
-            "fn": "function (_l) { return _l; }"
+            "fn": "(_l) { return _l; }"
         },
         {
             "identifier": "_",
@@ -30,7 +30,7 @@
             "type": "op",
             "arity": 1,
             "assocLow": "R",
-            "fn": "function (_l) { return -_l; }"
+            "fn": "(_l) { return -_l; }"
         },
         {
             "identifier": "~",
@@ -38,7 +38,7 @@
             "type": "op",
             "arity": 1,
             "assocLow": "R",
-            "fn": "function (_l) { return ~_l; }"
+            "fn": "(_l) { return ~_l; }"
         },
         {
             "identifier": "**",
@@ -46,7 +46,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "R",
-            "fn": "function (_l, _r) { return _l ** _r; }"
+            "fn": "(_l, _r) { return _l ** _r; }"
         },
         {
             "identifier": "*",
@@ -54,7 +54,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l * _r; }",
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l * _r: `${_l} * ${_r}`; }",
             "axiom": "scoreboard players operation arg[0] _ *= arg[1] _"
         },
         {
@@ -63,7 +63,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l / _r; }",
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l / _r: `${_l} / ${_r}`; }",
             "axiom": "scoreboard players operation arg[0] _ /= arg[1] _"
         },
         {
@@ -72,7 +72,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l % _r; }",
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l % _r: `${_l} % ${_r}`; }",
             "axiom": "scoreboard players operation arg[0] _ %= arg[1] _"
         },
         {
@@ -81,7 +81,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l + _r; }",
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l + _r: `${_l} + ${_r}`; }",
             "axiom": "scoreboard players operation arg[0] _ += arg[1] _"
         },
         {
@@ -90,7 +90,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l - _r; }",
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l - _r: `${_l} - ${_r}`; }",
             "axiom": "scoreboard players operation arg[0] _ -= arg[1] _"
         },
         {
@@ -99,7 +99,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l << _r; }"
+            "fn": "(_l, _r) { return _l << _r; }"
         },
         {
             "identifier": ">>",
@@ -107,7 +107,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l >> _r; }"
+            "fn": "(_l, _r) { return _l >> _r; }"
         },
         {
             "identifier": "&",
@@ -115,7 +115,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l & _r; }"
+            "fn": "(_l, _r) { return _l & _r; }"
         },
         {
             "identifier": "^",
@@ -123,7 +123,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l ^ _r; }"
+            "fn": "(_l, _r) { return _l ^ _r; }"
         },
         {
             "identifier": "|",
@@ -131,15 +131,15 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "function (_l, _r) { return _l | _r; }"
+            "fn": "(_l, _r) { return _l | _r; }"
         },
         {
             "identifier": "=",
-            "order": 21,
+            "order": 3,
             "type": "op",
             "arity": 2,
             "assocLow": "R",
-            "fn": "function (_l, _r) { return _l = _r; }",
+            "fn": "(_l, _r) { return `${_l} = ${_r}`; }",
             "axiom":"scoreboard players operation arg[0] _ = arg[1] _"
         }
     ],
