@@ -62,17 +62,14 @@ const operateTable = JSON.parse('\
 }');
 
 export async function scoreOperation() {
-    const editor = vscode.window.activeTextEditor!;
-    let text = editor.document.getText(editor.selection);
-
     const table: {
-        identifier: string;
-        order: number;
-        type: string;
-        arity: number;
-        assocLow: string;
-        fn: Function;
-        axiom: string;
+        identifier: string; //演算子
+        order: number;      //優先度
+        type: string;       //種類
+        arity: number;      //引数
+        assocLow: string;   //結合の種類
+        fn: Function;       //演算の内容
+        axiom: string;      //Operationの式
     }[] = [];
     for (let i = 0; i < operateTable.table.length; i++) {
         table.push({
@@ -87,10 +84,10 @@ export async function scoreOperation() {
     }
 
     function rpnGenerate(exp: string) {
-        var polish = []; ///parse結果格納用
-        var opeStack: any[][] = [[]]; ///演算子スタック
-        var depth = 0; ///括弧のネスト深度
-        var unary = true; //単項演算子チェック（正負符号等）
+        var polish = [];                //parse結果格納用
+        var opeStack: any[][] = [[]];   //演算子スタック
+        var depth = 0;                  //括弧のネスト深度
+        var unary = true;               //単項演算子チェック（正負符号等）
     
         do {
             //先頭の空白文字とカンマを消去
@@ -100,7 +97,7 @@ export async function scoreOperation() {
             //演算子スタック
             opeStack[depth] = opeStack[depth] || [];
     
-            ///数値抽出（整数・小数・16進数）
+            //数値抽出（整数・小数・16進数）
             var g = exp.match(/(^0x[0-9a-f]+)|(^[0-9]+(\.[0-9]+)?)/i);
             if (g !== null) {
                 polish.push(g[0].indexOf("0x") === 0 ? parseInt(g[0], 16) : parseFloat(g[0]));
@@ -130,21 +127,16 @@ export async function scoreOperation() {
                 throw new Error("illegal expression:" + exp.substring(0, 10) + " ...");
             }
     
-            ///スタック構築
-            ///・各演算子の優先順位
-            ///・符合の単項演算子化
+            //スタック構築
             switch (op) {
                 default:
-                    ///+符号を#に、-符号を_に置換
+                    //+符号を#に、-符号を_に置換
                     if (unary) {
                         if (op === '+') { op = '#'; }
                         else if (op === '-') { op = '_'; }
                     }
     
                     //演算子スタックの先頭に格納
-                    //・演算子がまだスタックにない
-                    //・演算子スタックの先頭にある演算子より優先度が高い
-                    //・演算子スタックの先頭にある演算子と優先度が同じでかつ結合法則がright to left
                     if (opeStack[depth].length === 0 ||
                         table[ssft(op)].order > table[ssft(opeStack[depth][0])].order ||
                         (table[ssft(op)].order === table[ssft(opeStack[depth][0])].order && table[ssft(op)].assocLow === "R")
@@ -152,9 +144,6 @@ export async function scoreOperation() {
                         opeStack[depth].unshift(op);
                     } else {
                         //式のスタックに演算子を積む
-                        //演算子スタックの先頭から、優先順位が同じか高いものを全て抽出して式に積む
-                        //※優先順位が同じなのは結合法則がright to leftのものだけスタックに積んである
-                        //演算優先度が、スタック先頭の演算子以上ならば、続けて式に演算子を積む
                         while (opeStack[depth].length > 0) {
                             var ope = opeStack[depth].shift();
                             polish.push(ope);
@@ -172,14 +161,14 @@ export async function scoreOperation() {
                     break;
     
                 case ")":
-                    while (opeStack[depth].length > 0) { ///演算子スタックを全て処理
+                    while (opeStack[depth].length > 0) { //演算子スタックを全て処理
                         polish.push(opeStack[depth].shift());
                     }
                     if (--depth < 0) {
                         //括弧閉じ多すぎてエラー
                         throw new Error("too much ')'");
                     }
-                    unary = false; ///括弧を閉じた直後は符号（単項演算子）ではない
+                    unary = false; //括弧を閉じた直後は符号（単項演算子）ではない
                     break;
             }
         } while (exp.length > 0);
@@ -200,15 +189,20 @@ export async function scoreOperation() {
         return "";
     };
 
-    function ssft(_str: string) { return operateTable.identifiers.indexOf(_str); }; // Search String From (operation) operateTable
+    function ssft(_str: string) { return operateTable.identifiers.indexOf(_str); }; // Search String From operateTable
+
+    const editor = vscode.window.activeTextEditor!;
+    let text = editor.document.getText(editor.selection);
 
     let formula: string;
-    if (!text) {
-        let res = await vscode.window.showInputBox({ value: '' });
+    //セレクトされていないならInputBoxを表示
+    if (text === '') {
+        let res = await vscode.window.showInputBox({ prompt: 'formula?' });
         text = res!;
         if (res !== '') {
             formula = rpnGenerate(res!);
         } else {
+            //セレクトもInputBoxの結果もない場合はエラーを吐いて終わり
             vscode.window.showErrorMessage('Formula NOT SELECTED');
             return;
         }
@@ -237,7 +231,7 @@ export async function scoreOperation() {
             }
         }
 
-        if (!isNaN(parseFloat(_val))) {
+        if (!isNaN(Number(_val))) {
             rpnStack.push({ value: _val, type: "num" });
         }
         else {
@@ -258,8 +252,10 @@ export async function scoreOperation() {
         var elem = rpnStack.shift()!;
         switch (elem.type) {
             case "num":
+                // 16進数の場合は10進数へ
                 let put = elem.value.indexOf("0x") !== -1 ? parseInt(elem.value, 16) : parseFloat(elem.value);
                 calcStack.push(put);
+                // 仮でCMDUTILという名前に
                 resValues += `scoreboard players set $CMDUTIL_${elem.value} _ ${put}\n`;
                 break;
 
@@ -277,6 +273,7 @@ export async function scoreOperation() {
                         str = str.substring(0, str.indexOf(`arg[${i}]`)) + t
                             + str.substring(str.indexOf(`arg[${i}]`) + `arg[${i}]`.length);
 
+                        // 計算結果をどう格納するか模索中...
                         if (i === 0) { calcStack.push(t.slice('$CMDUTIL_'.length)); }
                     }
                 }
