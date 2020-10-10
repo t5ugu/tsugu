@@ -1,7 +1,7 @@
 // https://github.com/spica-git/ReversePolishNotation/ からコピー、微改変
 
 import IOpe from "./operateTable/index";
-import opTable from './operateTable/operateTable.json';
+import opTable from './operateTable/index.json';
 
 /**
  * @description 演算子の定義
