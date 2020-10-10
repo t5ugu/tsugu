@@ -256,7 +256,7 @@ export async function scoreOperation() {
                 let put = elem.value.indexOf("0x") !== -1 ? parseInt(elem.value, 16) : parseFloat(elem.value);
                 calcStack.push(put);
                 // 仮でCMDUTILという名前に
-                resValues += `scoreboard players set $CMDUTIL_${elem.value} _ ${put}\n`;
+                resValues += `scoreboard players set $MCCUTIL_${elem.value} _ ${put}\n`;
                 break;
 
             case "str":
@@ -274,7 +274,7 @@ export async function scoreOperation() {
                             + str.substring(str.indexOf(`arg[${i}]`) + `arg[${i}]`.length);
 
                         // 計算結果をどう格納するか模索中...
-                        if (i === 0) { calcStack.push(t.slice('$CMDUTIL_'.length)); }
+                        if (i === 0) { calcStack.push(t.slice('$MCCUTIL_'.length)); }
                     }
                 }
 

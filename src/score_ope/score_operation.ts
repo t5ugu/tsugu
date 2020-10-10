@@ -1,16 +1,54 @@
 import vscode = require('vscode');
-import rpn = require('./rpn/rpn');
-import scoreTable from './scoreTable/index.json';
+import rpn = require('./rpn');
+const scoreTable = JSON.parse('\
+{\
+    "table": [\
+        {\
+            "identifier": "*",\
+            "order": 14,\
+            "type": "op",\
+            "axiom": "scoreboard players operation arg[0] _ *= arg[1] _"\
+        },\
+        {\
+            "identifier": "/",\
+            "order": 14,\
+            "type": "op",\
+            "axiom": "scoreboard players operation arg[0] _ /= arg[1] _"\
+        },\
+        {\
+            "identifier": "%",\
+            "order": 14,\
+            "type": "op",\
+            "axiom": "scoreboard players operation arg[0] _ %= arg[1] _"\
+        },\
+        {\
+            "identifier": "+",\
+            "order": 13,\
+            "type": "op",\
+            "axiom": "scoreboard players operation arg[0] _ += arg[1] _"\
+        },\
+        {\
+            "identifier": "-",\
+            "order": 13,\
+            "type": "op",\
+            "axiom": "scoreboard players operation arg[0] _ -= arg[1] _"\
+        },\
+        {\
+            "identifier": "=",\
+            "order": 3,\
+            "type": "op",\
+            "axiom": "scoreboard players operation arg[0] _ = arg[1] _"\
+        }\
+    ],\
+    "identifiers": [ "*", "/", "%", "+", "-", "=" ]\
+}');
 
 export async function scoreOperation() {
-    const editor = vscode.window.activeTextEditor!;
-    let text = editor.document.getText(editor.selection);
-
     const table: {
-        identifier: string;
-        order: number;
-        type: string;
-        axiom: string;
+        identifier: string; //演算子
+        order: number;      //優先度
+        type: string;       //種類
+        axiom: string;      //Operationの式
     }[] = [];
     for (let i = 0; i < scoreTable.table.length; i++) {
         let t = scoreTable.table[i];
@@ -22,15 +60,20 @@ export async function scoreOperation() {
         });
     }
 
-    function ssft(_str: string) { return scoreTable.identifiers.indexOf(_str); }; // Search String From (operation) Table
+    function ssft(_str: string) { return scoreTable.identifiers.indexOf(_str); }; // Search String From operateTable
+
+    const editor = vscode.window.activeTextEditor!;
+    let text = editor.document.getText(editor.selection);
 
     let formula: string;
-    if (!text) {
-        let res = await vscode.window.showInputBox({ value: '' });
+    //セレクトされていないならInputBoxを表示
+    if (text === '') {
+        let res = await vscode.window.showInputBox({ prompt: 'formula?' });
         text = res!;
         if (res !== '') {
             formula = rpn.rpnGenerate(res!);
         } else {
+            //セレクトもInputBoxの結果もない場合はエラーを吐いて終わり
             vscode.window.showErrorMessage('Formula NOT SELECTED');
             return;
         }
@@ -59,7 +102,7 @@ export async function scoreOperation() {
             }
         }
 
-        if (!isNaN(parseFloat(_val))) {
+        if (!isNaN(Number(_val))) {
             rpnStack.push({ value: _val, type: "num" });
         }
         else {
@@ -80,9 +123,11 @@ export async function scoreOperation() {
         var elem = rpnStack.shift()!;
         switch (elem.type) {
             case "num":
+                // 16進数の場合は10進数へ
                 let put = elem.value.indexOf("0x") !== -1 ? parseInt(elem.value, 16) : parseFloat(elem.value);
                 calcStack.push(put);
-                resValues += `scoreboard players set $CMDUTIL_${elem.value} _ ${put}\n`;
+                // 仮でCMDUTILという名前に
+                resValues += `scoreboard players set $MCCUTIL_${elem.value} _ ${put}\n`;
                 break;
 
             case "str":
@@ -99,7 +144,8 @@ export async function scoreOperation() {
                         str = str.substring(0, str.indexOf(`arg[${i}]`)) + t
                             + str.substring(str.indexOf(`arg[${i}]`) + `arg[${i}]`.length);
 
-                        if (i === 0) { calcStack.push(t.slice('$CMDUTIL_'.length)); }
+                        // 計算結果をどう格納するか模索中...
+                        if (i === 0) { calcStack.push(t.slice('$MCCUTIL_'.length)); }
                     }
                 }
 
