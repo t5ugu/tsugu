@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { swap } from './swap';
-import { scoreOperation } from './score_ope/score_operation';
+import { scoreOperation } from './scoreOperation';
 import { fullToHalf } from './full2half';
 
 export function activate(context: vscode.ExtensionContext) {

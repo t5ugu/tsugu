@@ -1,19 +1,17 @@
 import vscode = require('vscode');
 import rpn = require('./rpn/rpn');
-import IScoreTable from './scoreTable/index';
 import scoreTable from './scoreTable/index.json';
-import C = require('./claculation');
 
-export function scoreOperation() {
+export async function scoreOperation() {
     const editor = vscode.window.activeTextEditor!;
-    const doc = editor.document;
-    const selection = editor.selection;
+    let text = editor.document.getText(editor.selection);
 
-    let text = doc.getText(selection);
-
-    vscode.window.showInformationMessage(new C.Div().div('(x - 1)', 'x + 1').toString());
-
-    const table: IScoreTable.ScoreElement[] = [];
+    const table: {
+        identifier: string;
+        order: number;
+        type: string;
+        axiom: string;
+    }[] = [];
     for (let i = 0; i < scoreTable.table.length; i++) {
         let t = scoreTable.table[i];
         table.push({
@@ -24,10 +22,21 @@ export function scoreOperation() {
         });
     }
 
-    function gle(arr: any[]) { return arr.slice(-1)[0]; }   // Get Last Element
     function ssft(_str: string) { return scoreTable.identifiers.indexOf(_str); }; // Search String From (operation) Table
 
-    let formula = rpn.rpnGenerate(rpn.rpnCalculation(rpn.rpnGenerate(text)).toString());
+    let formula: string;
+    if (!text) {
+        let res = await vscode.window.showInputBox({ value: '' });
+        text = res!;
+        if (res !== '') {
+            formula = rpn.rpnGenerate(res!);
+        } else {
+            vscode.window.showErrorMessage('Formula NOT SELECTED');
+            return;
+        }
+    } else {
+        formula = rpn.rpnGenerate(text);
+    }
 
     function fnSplitOperator(_val: string) {
         if (_val === "") { return; }
@@ -65,17 +74,15 @@ export function scoreOperation() {
     }
 
     var calcStack: (number | string)[] = [];
-    let response = `# ${text}\n# scoreboard objectives add _ dummy\n#if U wish, U can change $\n`;
     let resValues = '';
     let resFormulas = '';
     while (rpnStack.length > 0) {
         var elem = rpnStack.shift()!;
         switch (elem.type) {
             case "num":
-                calcStack.push(
-                    elem.value.indexOf("0x") !== -1 ? parseInt(elem.value, 16) : parseFloat(elem.value)
-                );
-                resValues += `scoreboard players set $${elem.value} _ ${gle(calcStack)}\n`;
+                let put = elem.value.indexOf("0x") !== -1 ? parseInt(elem.value, 16) : parseFloat(elem.value);
+                calcStack.push(put);
+                resValues += `scoreboard players set $CMDUTIL_${elem.value} _ ${put}\n`;
                 break;
 
             case "str":
@@ -88,11 +95,11 @@ export function scoreOperation() {
                 let str = operate.axiom!;
                 for (var i = 1; i >= 0; i--) {
                     if (str.indexOf(`arg[${i}]`) !== -1) {
-                        let t = `$${calcStack.pop()!.toString()}`;
+                        let t = `$CMDUTIL_${calcStack.pop()!.toString()}`;
                         str = str.substring(0, str.indexOf(`arg[${i}]`)) + t
                             + str.substring(str.indexOf(`arg[${i}]`) + `arg[${i}]`.length);
 
-                        if (i === 0) { calcStack.push(t.substring(1)); }
+                        if (i === 0) { calcStack.push(t.slice('$CMDUTIL_'.length)); }
                     }
                 }
 
@@ -100,9 +107,14 @@ export function scoreOperation() {
                 break;
         }
     }
-    response += resValues + resFormulas;
 
     editor.edit(edit => {
-        edit.replace(selection, response);
+        edit.replace(editor.selection, [
+            `# ${text}`,
+            '#if u wish, u can change both <Holder>s\' NAME and the OBJECT _',
+            '',
+            resValues,
+            resFormulas
+        ].join('\n'));
     });
 }

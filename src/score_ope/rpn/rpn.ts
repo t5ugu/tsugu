@@ -1,6 +1,5 @@
 // https://github.com/spica-git/ReversePolishNotation/ からコピー、微改変
 
-import IOpe from "./operateTable/index";
 import opTable from './operateTable/index.json';
 
 /**
@@ -13,7 +12,14 @@ import opTable from './operateTable/index.json';
  *	assocLow: 結合法則（"":なし, "L":左結合(left to right), "R":右結合(right to left)）
  * 	fn: 演算処理
  */
-const table: IOpe.IIdentifiers[] = [];
+const table: {
+    identifier: string;
+    order: number;
+    type: string;
+    arity: number;
+    assocLow: string;
+    fn: Function;
+}[] = [];
 for (let i = 0; i < opTable.table.length; i++) {
     table.push({
         identifier: opTable.table[i].identifier,
