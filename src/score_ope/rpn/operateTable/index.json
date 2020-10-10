@@ -54,8 +54,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l * _r: `${_l} * ${_r}`; }",
-            "axiom": "scoreboard players operation arg[0] _ *= arg[1] _"
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l * _r: `${_l} * ${_r}`; }"
         },
         {
             "identifier": "/",
@@ -63,8 +62,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l / _r: `${_l} / ${_r}`; }",
-            "axiom": "scoreboard players operation arg[0] _ /= arg[1] _"
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l / _r: `${_l} / ${_r}`; }"
         },
         {
             "identifier": "%",
@@ -72,8 +70,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l % _r: `${_l} % ${_r}`; }",
-            "axiom": "scoreboard players operation arg[0] _ %= arg[1] _"
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l % _r: `${_l} % ${_r}`; }"
         },
         {
             "identifier": "+",
@@ -81,8 +78,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l + _r: `${_l} + ${_r}`; }",
-            "axiom": "scoreboard players operation arg[0] _ += arg[1] _"
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l + _r: `${_l} + ${_r}`; }"
         },
         {
             "identifier": "-",
@@ -90,8 +86,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "L",
-            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l - _r: `${_l} - ${_r}`; }",
-            "axiom": "scoreboard players operation arg[0] _ -= arg[1] _"
+            "fn": "(_l, _r) { return (typeof _l === 'number' && typeof _r === 'number')? _l - _r: `${_l} - ${_r}`; }"
         },
         {
             "identifier": "<<",
@@ -139,8 +134,7 @@
             "type": "op",
             "arity": 2,
             "assocLow": "R",
-            "fn": "(_l, _r) { return `${_l} = ${_r}`; }",
-            "axiom":"scoreboard players operation arg[0] _ = arg[1] _"
+            "fn": "(_l, _r) { return `${_l} = ${_r}`; }"
         }
     ],
     "identifiers": [
