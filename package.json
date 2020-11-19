@@ -16,30 +16,8 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "tsugu.swap",
-				"title": "Swap"
-			},
-			{
-				"command": "tsugu.operation",
-				"title": "Operation"
-			},
-			{
-				"command": "tsugu.full2half",
-				"title": "2byte-WS -> two 1byte-WS"
-			}
-		],
-		"keybindings": [
-			{
-				"command": "tsugu.swap",
-				"key": "alt+S"
-			},
-			{
-				"command": "tsugu.full2half",
-				"key": "ctrl+shift+2"
-			}
-		]
+		"commands": [],
+		"keybindings": []
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
