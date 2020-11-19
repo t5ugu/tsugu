@@ -9,11 +9,7 @@
 	"categories": [
 		"Other"
 	],
-	"activationEvents": [
-		"onCommand:tsugu.swap",
-		"onCommand:tsugu.operation",
-		"onCommand:tsugu.full2half"
-	],
+	"activationEvents": [],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [],
